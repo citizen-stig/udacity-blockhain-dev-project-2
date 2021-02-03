@@ -18,6 +18,9 @@ module.exports = {
             process: 'process/browser',
             Buffer: ['buffer', 'Buffer'],
         }),
+        new webpack.SourceMapDevToolPlugin({
+            filename: "[file].map"
+        }),
     ],
     devServer: {contentBase: path.join(__dirname, "dist"), compress: true},
     resolve: {
@@ -30,4 +33,14 @@ module.exports = {
             stream: require.resolve("stream-browserify"),
         }
     },
+    module: {
+        rules: [
+            {
+                test: /\.js$/,
+                enforce: 'pre',
+                use: ['source-map-loader'],
+            },
+        ],
+    },
+    ignoreWarnings: [/Failed to parse source map/],
 };

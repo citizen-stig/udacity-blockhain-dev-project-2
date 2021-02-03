@@ -6,7 +6,7 @@
     "scripts": {
         "build": "webpack",
         "devold": "webpack-dev-server",
-        "dev": "webpack serve --progress --content-base src/"
+        "dev": "webpack serve --mode=development"
     },
     "devDependencies": {
         "assert": "^2.0.0",
@@ -15,6 +15,7 @@
         "https-browserify": "^1.0.0",
         "install": "^0.13.0",
         "os-browserify": "^0.3.0",
+        "process": "^0.11.10",
         "stream-browserify": "^3.0.0",
         "stream-http": "^3.1.1",
         "webpack": "^5.20.1",

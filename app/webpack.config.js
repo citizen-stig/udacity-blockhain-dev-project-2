@@ -1,4 +1,5 @@
 const path = require("path");
+const webpack = require('webpack');
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
@@ -12,6 +13,11 @@ module.exports = {
             {
                 patterns: [{from: "./src/index.html", to: "index.html"}]
             }),
+        // fix "process is not defined" error:
+        new webpack.ProvidePlugin({
+            process: 'process/browser',
+            Buffer: ['buffer', 'Buffer'],
+        }),
     ],
     devServer: {contentBase: path.join(__dirname, "dist"), compress: true},
     resolve: {

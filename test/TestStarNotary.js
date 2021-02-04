@@ -17,9 +17,9 @@ contract('StarNotary', async accounts => {
     describe('basic star operations', function () {
         it('allows creating a new star', async function () {
             let thisStarId = starId;
-            await instance.createStar('Awesome New Star!', thisStarId, {from: user0})
+            await instance.createStar('Awesome New Star!', thisStarId, {from: user0});
             starId += 1;
-            assert.equal(await instance.tokenIdToStarInfo.call(thisStarId), 'Awesome New Star!')
+            assert.equal(await instance.tokenIdToStarInfo.call(thisStarId), 'Awesome New Star!');
         });
         it('forbids creating a duplicate star', async function () {
             let starName = 'Another Awesome Star!';
@@ -40,11 +40,23 @@ contract('StarNotary', async accounts => {
             assert.equal('NGSNT', actualSymbol);
         });
 
-        it('lookUptokenIdToStarInfo test', async function () {
-            // 1. create a Star with different tokenId
-            // 2. Call your method lookUptokenIdToStarInfo
-            // 3. Verify if you Star name is the same
-            this.skip();
+        it('can lookup existing star by its id', async function () {
+            let thisStarId = starId + 1000;
+            let starName = 'Test Star Lookup';
+            await instance.createStar(starName, thisStarId, {from: user0});
+            let actualStarName = await instance.lookUpTokenIdToStarInfo(thisStarId);
+            assert.equal(starName, actualStarName);
+        });
+
+        it('fails when lookup unknown star', async function () {
+            try {
+                await instance.lookUpTokenIdToStarInfo(31337);
+                assert.fail("Should fail on lookup of unknown star");
+            } catch (error) {
+                // For some reason, `error.reason` is not present.
+                let topOfTheStack = error.hijackedStack.split('\n')[0];
+                assert.isTrue(topOfTheStack.includes("The star with given id is not found"));
+            }
         });
     });
 
@@ -97,7 +109,7 @@ contract('StarNotary', async accounts => {
         });
 
         // Edge cases
-        it('prevents user2 from selling not her own star', async function() {
+        it('prevents user2 from selling not her own star', async function () {
             try {
                 await instance.putStarUpForSale(thisStarId, starPrice, {from: user3});
                 assert.fail("Should not allow putting others stars for sale");

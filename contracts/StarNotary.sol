@@ -22,6 +22,7 @@ contract StarNotary is ERC721 {
     // Create Star using the Struct
     function createStar(string memory _name, uint256 _tokenId) public {
         Star memory newStar = Star(_name);
+        require(bytes(_name).length > 0, "Star name cannot be empty");
         require(claimedStars[_name] == 0, "Star with this name already claimed");
         claimedStars[_name] = 1;
         tokenIdToStarInfo[_tokenId] = newStar;
@@ -40,7 +41,7 @@ contract StarNotary is ERC721 {
         return address(uint160(x));
     }
 
-    function buyStar(uint256 _tokenId) public  payable {
+    function buyStar(uint256 _tokenId) public payable {
         require(starsForSale[_tokenId] > 0, "The Star should be up for sale");
         uint256 starCost = starsForSale[_tokenId];
         address ownerAddress = ownerOf(_tokenId);
@@ -48,14 +49,16 @@ contract StarNotary is ERC721 {
         _transfer(ownerAddress, msg.sender, _tokenId);
         address payable ownerAddressPayable = _make_payable(ownerAddress);
         ownerAddressPayable.transfer(starCost);
-        if(msg.value > starCost) {
+        if (msg.value > starCost) {
             msg.sender.transfer(msg.value - starCost);
         }
     }
 
     // Implement Task 1 lookUpTokenIdToStarInfo
-    function lookUpTokenIdToStarInfo (uint _tokenId) public view returns (string memory) {
-        //1. You should return the Star saved in tokenIdToStarInfo mapping
+    function lookUpTokenIdToStarInfo(uint _tokenId) public view returns (string memory) {
+        Star memory existingStar = tokenIdToStarInfo[_tokenId];
+        require(bytes(existingStar.name).length > 0, "The star with given id is not found");
+        return existingStar.name;
     }
 
     // Implement Task 1 Exchange Stars function

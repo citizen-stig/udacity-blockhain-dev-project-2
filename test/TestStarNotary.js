@@ -33,9 +33,11 @@ contract('StarNotary', async accounts => {
             }
         });
         it('can add the star name and star symbol properly', async function () {
-            // 1. create a Star with different tokenId
-            //2. Call the name and symbol properties in your Smart Contract and compare with the name and symbol provided
-            this.skip();
+            let [actualName, actualSymbol] = await Promise.all([
+                instance.name.call(),
+                instance.symbol.call()]);
+            assert.equal('Nikolai Golub Star Notary Token', actualName);
+            assert.equal('NGSNT', actualSymbol);
         });
 
         it('lookUptokenIdToStarInfo test', async function () {

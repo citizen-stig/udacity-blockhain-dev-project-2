@@ -5,7 +5,6 @@
     "private": true,
     "scripts": {
         "build": "webpack",
-        "devold": "webpack-dev-server",
         "dev": "webpack serve --mode=development"
     },
     "devDependencies": {

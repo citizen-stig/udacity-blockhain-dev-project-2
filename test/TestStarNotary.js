@@ -120,18 +120,66 @@ contract('StarNotary', async accounts => {
     });
 
     describe('star exchange', async function () {
+        let star1;
+        let star2;
+        before(async function () {
+            star1 = starId;
+            star2 = starId + 1;
+            await Promise.all([
+                instance.createStar('User 1 Star', star1, {from: user1}),
+                instance.createStar('User 2 Star', star2, {from: user2})
+            ]);
+            starId += 2;
+        });
+
+
         it('lets 2 users exchange stars', async function () {
-            // 1. create 2 Stars with different tokenId
-            // 2. Call the exchangeStars functions implemented in the Smart Contract
-            // 3. Verify that the owners changed
-            this.skip();
+            await instance.exchangeStars(star1, star2, {from: user1});
+        });
+
+        it('changes owner of stars', async function() {
+            return Promise.all([
+                instance.ownerOf(star1)
+                    .then(actualOwner => assert.equal(user2, actualOwner)),
+                instance.ownerOf(star2)
+                    .then(actualOwner => assert.equal(user1, actualOwner)),
+            ])
+        });
+
+        it('prevents non owner from exchanging', async function() {
+            try {
+                await instance.exchangeStars(star1, star2, {from: user3});
+                assert.fail("Should not allow non owner initiate exchange");
+            } catch (error) {
+                assert.equal("Only owner can exchange stars", error.reason);
+            }
+        })
+    });
+
+    describe('star transfer', async function() {
+        let thisStarId;
+        before(async function () {
+            thisStarId = starId;
+            await instance.createStar('Transferable Star', thisStarId, {from: user1});
+            starId += 1;
         });
 
         it('lets a user transfer a star', async function () {
-            // 1. create a Star with different tokenId
-            // 2. use the transferStar function implemented in the Smart Contract
-            // 3. Verify the star owner changed.
-            this.skip();
+            await instance.transferStar(user2, thisStarId, {from: user1});
         });
+
+        it('changes owner of the star', async function () {
+            let actualOwner = await instance.ownerOf(thisStarId);
+            assert.equal(user2, actualOwner);
+        });
+
+        it('prevents another user to transfer star', async function() {
+            try {
+                await instance.transferStar(user2, thisStarId,{from: user3});
+                assert.fail("Should not allow non owner transfer star");
+            } catch (error) {
+                assert.equal("ERC721: transfer caller is not owner nor approved", error.reason);
+            }
+        })
     });
 });
